@@ -1,0 +1,45 @@
+
+This process assumes that:
+1. the operating model was run with input data representing a specific (historical) time period
+2. the operating model was run using MCMC to characterize error and uncertainty
+3. the thinned MCMC parameter vectors were tested for non-convergence and other unhelpful properties
+
+- The operating model for the MSE was written in ADMB and C/C++; the stock assessment model was written in ADMB
+- The operating model, when operating as a stock assessment model, is identical in structure to that of the stock assessment model used in the current management strategy
+- The stock assessment model used was current at the time, with a few additions to incorporate the HCR, so that the stock assessment model used in the MSE was the current management strategy
+- The operating model estimates the state of the stock(s) and fishery through year y; the stock(s) and fishery are projected from year y+1 to year y+n
+- The operating model represents the “true” state of the stock(s) and fishery; the stock assessment model represents the perceived/estimated state of the stock(s) and fishery
+- Each MCMC parameter vector i characterizes a single simulated “true” population
+
+
+The pseudocode for the MSE projections
+
+Initialize all projection variables
+
+Main loop over all (thinned) MCMC parameter vectors – index i
+1. Calculate average of recent fishing selectivity through year y-1
+2. Calculate the “true” BRPs and HCR values for year y
+3. Calculate average (log) recruitment and CV over the current environmental regime through year y-1 (from 1977 on in this case)
+4. Output MCMC parameter vector i and BRPs and HCR values
+5. Instantiate random number generator with seed(i) from seed file
+6. Calculate the “true” fishery proportions-at-age and generate the “observed” fishery proportions-at-age for year y
+7. Loop over years y+1 to y+n – index j
+  a. Calculate M-at-age for year j (if necessary)
+  b. Compose input data file for the management strategy (stock assessment model and HCR in this case) using values for the “true” stock(s) through year j-1
+    i. If j-1 is equal to y, then the input data file is the input data file used by the operating model and stock assessment model for year y, i.e., the input data file used to run the operating model as a stock assessment model
+    ii. Each year of generated “observed” data appends to or overwrites values from the previous year, e.g., catches and CVs, survey indices and CVs, and fishery and survey proportions-at-age are appended to existing data, number of fishery and survey samples are updated
+  c. Write the input data file for simulation i and year j to disk (historical and generated data through year j-1)
+  d. Run the management strategy (stock assessment model and HCR in this case) to estimate BRP and HCR values for year j
+    i. Run the batch file with command line values i and j
+      1. Batch file removes previous management strategy output files
+      2. Batch file copies generated input data file to new name indicating simulation and year (i and j)
+      3. Batch file runs the management strategy with generated input data file
+      4. Batch file copies output files to new names indicating simulation and year (i and j)
+  e. Parse the output of the management strategy for estimated BRPs and HCR values (including ABC and OFL), as well as other values of interest, e.g., fishing mortality, recruitment, fishery and survey selectivity for year j-1
+  f. Set the catch for year j to be applied to the “true” stock(s) to the estimated ABC or OFL, or other value; implementation error can be applied here
+  g. Calculate the fully-selected fishing mortality applied in year j to the “true” stock(s) when the catch for year j is harvested
+  h. Calculate the “true” stock parameters, e.g., total mortality-at-age, total and spawning biomass, fishery and survey numbers-at-age, “observed” survey indices and CVs, “observed” fishery and survey proportions-at-age in year j, and calculated numbers-at-age and generated recruits in year j+1
+  i. Calculate the BRPs and HCR values in year j for the “true” stock(s) using the “true” values through year j-1
+  j. Write all values of interest to file(s)
+
+Recommendation:  save EVERYTHING so that the “true” and perceived states can be compared
