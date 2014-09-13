@@ -42,4 +42,4 @@ Main loop over all (thinned) MCMC parameter vectors – index i
   i. Calculate the BRPs and HCR values in year j for the “true” stock(s) using the “true” values through year j-1
   j. Write all values of interest to file(s)
 
-Recommendation:  save EVERYTHING so that the “true” and perceived states can be compared
+Recommendation:  save EVERYTHING so that the “true” and "perceived" (estimated) states can be compared
