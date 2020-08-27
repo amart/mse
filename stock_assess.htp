@@ -1,0 +1,322 @@
+#if !defined(_stock_assess_)
+#  define _stock_assess_
+
+class model_data : public ad_comm{
+  ofstream *   pad_report1;
+  data_int styr;
+  data_int endyr;
+  data_int base_endyr;
+  data_int hcr_styr;
+  data_int rcrage;
+  data_int trmage;
+  data_int nbins1;
+  data_int nbins2;
+  data_int nbins3;
+  data_vector cattot;
+  data_vector cattot_log_sd;
+  data_int nyrs_fsh;
+  data_ivector fshyrs;
+  data_vector multN_fsh;
+  data_ivector ac_yng_fsh;
+  data_ivector ac_old_fsh;
+  data_int nyrslen_fsh;
+  data_ivector fshlenyrs;
+  data_vector multNlen_fsh;
+  data_vector rwlk_sd;
+  dvector rwlk_sd_short;
+  data_matrix catp;
+  data_matrix lenp;
+  data_matrix wt_fsh;
+  data_int nyrs_srv1_bs;
+  data_ivector srvyrs1_bs;
+  data_vector indxsurv1_bs;
+  data_vector indxsurv_log_sd1_bs;
+  data_int nyrs_srv1_ek;
+  data_ivector srvyrs1_ek;
+  data_vector indxsurv1_ek;
+  data_vector indxsurv_log_sd1_ek;
+  data_int nyrs_srv1_dy;
+  data_ivector srvyrs1_dy;
+  data_vector indxsurv1_dy;
+  data_vector indxsurv_log_sd1_dy;
+  data_vector yrfrct_srv1;
+  data_int nyrsac_srv1;
+  data_ivector srv_acyrs1;
+  data_vector multN_srv1;
+  data_ivector ac_yng_srv1;
+  data_ivector ac_old_srv1;
+  data_int nyrslen_srv1;
+  data_ivector srv_lenyrs1;
+  data_vector multNlen_srv1;
+  data_matrix srvp1;
+  data_matrix srvlenp1;
+  data_matrix wt_srv1;
+  data_int nyrs_srv2;
+  data_ivector srvyrs2;
+  data_vector indxsurv2;
+  data_vector indxsurv_log_sd2;
+  data_vector yrfrct_srv2;
+  data_int nyrsac_srv2;
+  data_ivector srv_acyrs2;
+  data_vector multN_srv2;
+  data_ivector ac_yng_srv2;
+  data_ivector ac_old_srv2;
+  data_int nyrslen_srv2;
+  data_ivector srv_lenyrs2;
+  data_vector multNlen_srv2;
+  data_matrix srvp2;
+  data_matrix srvlenp2;
+  data_matrix wt_srv2;
+  data_int nyrs_srv3;
+  data_ivector srvyrs3;
+  data_vector indxsurv3;
+  data_vector indxsurv_log_sd3;
+  data_vector yrfrct_srv3;
+  data_int nyrsac_srv3;
+  data_ivector srv_acyrs3;
+  data_vector multN_srv3;
+  data_int nyrslen_srv3;
+  data_ivector srv_lenyrs3;
+  data_vector multNlen_srv3;
+  data_matrix srvp3;
+  data_matrix srvlenp3;
+  data_matrix wt_srv3;
+  data_matrix age_trans;
+  data_matrix len_trans1;
+  data_matrix len_trans2;
+  data_matrix len_trans3;
+  data_matrix wt_pop;
+  data_matrix wt_spawn;
+  data_vector mat_old;
+  data_vector mat;
+  data_vector wt_pop_proj;
+  data_vector wt_spawn_proj;
+  data_vector wt_fsh_proj;
+  data_vector wt_srv_proj;
+  data_vector Ftarget;
+  data_number B40;
+  data_number log_mean_recr_proj;
+  data_number sigmasq_recr;
+  int styr_avg_slct;
+  int endyr_avg_slct;
+  int endyr_fsh_dev;
+  int i;
+  int j;
+  int loop;
+  int phase_future;
+  int mcmc_iter;
+  double y_frac_sp;
+  double Tier3_alpha;
+  double o;
+  ~model_data();
+  model_data(int argc,char * argv[]);
+  friend class model_parameters;
+};
+
+class model_parameters : public model_data ,
+  public function_minimizer
+{
+public:
+  ~model_parameters();
+  void preliminary_calculations(void);
+  void set_runtime(void);
+  virtual void * mycast(void) {return (void*)this;}
+  static int mc_phase(void)
+  {
+    return initial_params::mc_phase;
+  }
+  static int mceval_phase(void)
+  {
+    return initial_params::mceval_phase;
+  }
+  static int sd_phase(void)
+  {
+    return initial_params::sd_phase;
+  }
+  static int current_phase(void)
+  {
+    return initial_params::current_phase;
+  }
+  static int last_phase(void)
+  {
+    return (initial_params::current_phase
+      >=initial_params::max_number_phases);
+  }
+  static prevariable current_feval(void)
+  {
+    return *objective_function_value::pobjfun;
+  }
+private:
+  ivector integer_control_flags;
+  dvector double_control_flags;
+  param_init_bounded_number M;
+  param_init_bounded_number mean_log_initN;
+  param_init_bounded_dev_vector dev_log_initN;
+  param_vector initN;
+  param_init_bounded_number mean_log_recruit;
+  param_init_bounded_dev_vector dev_log_recruit;
+  param_init_bounded_vector log_recr_proj;
+  param_stddev_vector recruit_proj;
+  param_matrix N_proj;
+  param_vector F_proj;
+  param_matrix Z_proj;
+  param_matrix C_proj;
+  param_matrix Nsrv_proj;
+  param_vector slctfsh_proj;
+  param_vector Ecattot_proj;
+  param_stddev_vector Esumbio_proj;
+  param_stddev_vector Espawnbio_proj;
+  param_stddev_vector Esrv_proj;
+  param_stddev_vector Exrate_proj;
+  param_number sbio;
+  param_init_bounded_number log_slp1_fsh_mean;
+  param_init_bounded_number inf1_fsh_mean;
+  param_init_bounded_number log_slp2_fsh_mean;
+  param_init_bounded_number inf2_fsh_mean;
+  param_init_bounded_dev_vector slp1_fsh_dev;
+  param_init_bounded_dev_vector inf1_fsh_dev;
+  param_init_bounded_dev_vector slp2_fsh_dev;
+  param_init_bounded_dev_vector inf2_fsh_dev;
+  param_vector slp1_fsh;
+  param_vector inf1_fsh;
+  param_vector slp2_fsh;
+  param_vector inf2_fsh;
+  param_init_bounded_number log_slp1_fsh_mean_const;
+  param_init_bounded_number inf1_fsh_mean_const;
+  param_init_bounded_number log_slp2_fsh_mean_const;
+  param_init_bounded_number inf2_fsh_mean_const;
+  param_number slp1_fsh_const;
+  param_number inf1_fsh_const;
+  param_number slp2_fsh_const;
+  param_number inf2_fsh_const;
+  param_init_bounded_number log_slp2_srv1;
+  param_init_bounded_number inf2_srv1;
+  param_init_bounded_number srv1_age1;
+  param_init_bounded_number log_slp1_srv2;
+  param_init_bounded_number inf1_srv2;
+  param_init_bounded_number log_slp2_srv2;
+  param_init_bounded_number inf2_srv2;
+  param_init_bounded_number srv2_age1;
+  param_init_bounded_number log_slp1_srv3;
+  param_init_bounded_number inf1_srv3;
+  param_init_bounded_number mean_log_F;
+  param_init_bounded_dev_vector dev_log_F;
+  param_vector F;
+  param_init_bounded_number log_q1_bs;
+  param_init_bounded_number log_q1_ek;
+  param_init_bounded_number log_q1_dy;
+  param_init_bounded_number log_q2;
+  param_init_bounded_number log_q3;
+  param_number q1_bs;
+  param_number q1_ek;
+  param_number q1_dy;
+  param_number q2;
+  param_number q3;
+  param_number avgR;
+  param_number avgR_CV;
+  param_number SB0;
+  param_number R0;
+  param_number phi0;
+  param_number SBcurr;
+  param_number F100;
+  param_number SB100;
+  param_number SBtarget;
+  param_number F40;
+  param_number SB40;
+  param_number F35;
+  param_number SB35;
+  param_number F20;
+  param_number SB20;
+  param_number F_ABC;
+  param_number ABC;
+  param_number F_OFL;
+  param_number OFL;
+  param_matrix N;
+  param_stddev_vector endN;
+  param_vector all_recruits;
+  param_matrix Z;
+  param_matrix C;
+  param_matrix Nsrv1;
+  param_vector slctsrv1;
+  param_matrix Nsrv2;
+  param_vector slctsrv2;
+  param_matrix Nsrv3;
+  param_vector slctsrv3;
+  param_vector slctfsh_base;
+  param_matrix slctfsh;
+  param_vector slctfsh_const;
+  param_vector Eecocon;
+  param_matrix Eec;
+  param_vector Ecattot;
+  param_matrix Ecatp;
+  param_matrix Elenp;
+  param_vector Eindxsurv1_bs;
+  param_vector Eindxsurv1_ek;
+  param_vector Eindxsurv1_dy;
+  param_matrix Esrvp1;
+  param_matrix Esrvlenp1;
+  param_vector Eindxsurv2;
+  param_matrix Esrvp2;
+  param_matrix Esrvlenp2;
+  param_vector Eindxsurv3;
+  param_matrix Esrvp3;
+  param_matrix Esrvlenp3;
+  param_vector loglik;
+  param_vector llcatp;
+  param_vector lllenp;
+  param_vector llsrvp1;
+  param_vector llsrvlenp1;
+  param_vector llsrvp2;
+  param_vector llsrvlenp2;
+  param_vector llsrvp3;
+  param_vector llsrvlenp3;
+  param_stddev_vector recruit;
+  param_stddev_number sd_avg_rec;
+  param_stddev_vector Espawnbio;
+  param_stddev_vector Esumbio;
+  param_matrix res_fish;
+  param_matrix res_srv1;
+  param_matrix res_srv2;
+  param_matrix res_srv3;
+  param_matrix res_srv3len;
+  param_matrix pearson_fish;
+  param_matrix pearson_srv1;
+  param_matrix pearson_srv2;
+  param_matrix pearson_srv3;
+  param_matrix pearson_srv3len;
+  param_vector effN_fsh;
+  param_vector effN_srv1;
+  param_vector effN_srv2;
+  param_vector effN_srv3;
+  param_number RMSE_srv1_bs;
+  param_number RMSE_srv1_ek;
+  param_number RMSE_srv1_dy;
+  param_number RMSE_srv2;
+  param_number RMSE_srv3;
+  param_likeprof_number var_prof;
+  param_number prior_function_value;
+  param_number likelihood_function_value;
+  objective_function_value objfun;
+public:
+  virtual void userfunction(void);
+  virtual void report(const dvector& gradients);
+  virtual void final_calcs(void);
+  model_parameters(int sz,int argc, char * argv[]);
+  virtual void initializationfunction(void);
+  void Convert_log_parameters(void);
+  void Selectivity(void);
+  void Mortality(void);
+  void Numbers_at_age(void);
+  void Catch_at_age(void);
+  void Expected_values(void);
+  void Projections(void);
+  void Objective_function(void);
+ dvariable solve_for_fishing_mortality(dvariable catch_level, int naa_yr);
+ void calculate_curr_bio_ref_points(dvar_vector sel, int curr_yr);
+ dvariable get_spr_rates(dvariable spr_percent, dvar_vector sel, int curr_yr);
+ dvariable spr_unfished(int curr_yr);
+ dvariable spr_ratio(dvariable trial_F, dvar_vector sel, int curr_yr);
+  void MCMC_output(void);
+
+};
+#endif
