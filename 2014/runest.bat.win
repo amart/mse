@@ -1,0 +1,9 @@
+del pk13_3.par
+del pk13_3.rep
+
+cp pk13_proj.dat pk13_proj.%1.%2.dat
+
+pk13_3.exe -nox -nohess -ind pk13_proj.dat
+
+cp pk13_3.rep pk13_3.%1.%2.rep
+cp pk13_3.par pk13_3.%1.%2.par
